@@ -1,0 +1,76 @@
+%YAML 1.2
+---
+version: 2
+name: MDX
+file_extensions: [mdx]
+scope: source.mdx
+extends: Packages/Markdown/Markdown.sublime-syntax
+
+contexts:
+  prototype:
+    - meta_prepend: true
+    - match: '{'
+      captures:
+        0: punctuation.section.braces.begin.mdx
+      embed: Packages/JavaScript/JSX.sublime-syntax
+      escape: '}'
+      escape_captures:
+        0: punctuation.section.braces.end.mdx
+
+  main:
+    - include: frontmatter
+    - match: ''
+      set: mdx
+
+  frontmatter:
+    - match: ^(---)$
+      captures:
+        0: meta.frontmatter.mdx
+        1: punctuation.section.block.begin.frontmatter.mdx
+      embed: scope:source.yaml
+      embed_scope: meta.frontmatter.mdx
+      escape: ^(---)$
+      escape_captures:
+        0: meta.frontmatter.mdx
+        1: punctuation.section.block.end.frontmatter.mdx
+
+  mdx:
+    - include: jsx
+    - include: markdown
+
+  jsx:
+    -
+      match: '^(?=import|export)'
+      push: Packages/JavaScript/JSX.sublime-syntax
+      with_prototype:
+        - match: '$'
+          pop: true
+    -
+      # handle manually because JSX doesn't allow closing tags on their own
+      match: '(</)(\w+)(>)'
+      captures:
+        1: punctuation.definition.tag.begin.mdx
+        2: entity.name.tag.mdx
+        3: punctuation.definition.tag.end.mdx
+    -
+      match: '(?=<)'
+      push: Packages/JavaScript/JSX.sublime-syntax
+      with_prototype:
+        - match: '(?<=>)'
+          pop: true
+
+  # remove indented-code-blocks markdown rule
+  markdown:
+    # - include: indented-code-blocks
+    - include: thematic-breaks
+    - include: block-quotes
+    - include: list-blocks
+    - include: tables
+    - include: fenced-code-blocks
+    - include: html-blocks
+    - include: reference-definitions
+    - include: atx-headings
+    - include: setext-headings-or-paragraphs
+
+  # ignore markdown html blocks
+  html-blocks: []
