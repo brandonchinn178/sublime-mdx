@@ -9,6 +9,7 @@ extends: Packages/Markdown/Markdown.sublime-syntax
 contexts:
   prototype:
     - meta_prepend: true
+    # curly braces = JS interpolation in MDX
     - match: '{'
       captures:
         0: punctuation.section.braces.begin.mdx
@@ -74,3 +75,8 @@ contexts:
 
   # ignore markdown html blocks
   html-blocks: []
+
+  # ignore curly braces in raw code blocks
+  fenced-raw-content:
+    - meta_prepend: true
+    - meta_include_prototype: false
