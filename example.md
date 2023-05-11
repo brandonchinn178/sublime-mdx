@@ -17,9 +17,11 @@ def foo(a, b):
 
 import Component from 'my-library'
 
-This is some more text
+This is some more text with an inline <Component /> *tag*.
 
 export * from './sublibrary'
+
+<Component>A **formatted** text</Component>
 
 <Component str={asdf() + 'asdf'}>
     Some [text](https://example.com) *with formatting*

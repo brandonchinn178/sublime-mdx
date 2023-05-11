@@ -6,17 +6,24 @@ file_extensions: [mdx]
 scope: source.mdx
 extends: Packages/Markdown/Markdown.sublime-syntax
 
+variables:
+  setext_heading_or_paragraph: \S
+
 contexts:
   prototype:
-    - meta_prepend: true
-    # curly braces = JS interpolation in MDX
-    - match: '{'
+    -
+      meta_prepend: true
+    -
+      # curly braces = JS interpolation in MDX
+      match: '{'
       captures:
         0: punctuation.section.braces.begin.mdx
       embed: Packages/JavaScript/JSX.sublime-syntax
       escape: '}'
       escape_captures:
         0: punctuation.section.braces.end.mdx
+    -
+      include: jsx-tag
 
   main:
     - include: frontmatter
@@ -29,7 +36,7 @@ contexts:
         0: meta.frontmatter.mdx
         1: punctuation.section.block.begin.frontmatter.mdx
       embed: scope:source.yaml
-      embed_scope: meta.frontmatter.mdx
+      embed_scope: meta.frontmatter.mdx source.yaml.embedded.mdx
       escape: ^(---)$
       escape_captures:
         0: meta.frontmatter.mdx
@@ -47,6 +54,10 @@ contexts:
         - match: '$'
           pop: true
     -
+      include: jsx-tag
+
+  jsx-tag:
+    -
       # handle manually because JSX doesn't allow closing tags on their own
       match: '(</)(\w+)(>)'
       captures:
@@ -55,9 +66,23 @@ contexts:
         3: punctuation.definition.tag.end.mdx
     -
       match: '(?=<)'
-      push: Packages/JavaScript/JSX.sublime-syntax
+      push: jsx-embedded
+
+  jsx-embedded:
+    -
+      match: '(?=.)'
+      set: Packages/JavaScript/JSX.sublime-syntax
       with_prototype:
-        - match: '(?<=>)'
+        -
+          match: '{'
+          captures:
+            0: punctuation.section.braces.begin.mdx
+          embed: scope:source.js
+          escape: '}'
+          escape_captures:
+            0: punctuation.section.braces.end.mdx
+        -
+          match: '(?<=>)'
           pop: true
 
   # remove indented-code-blocks markdown rule
